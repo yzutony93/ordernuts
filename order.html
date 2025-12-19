@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>佳德屋 天然養生堅果｜線上訂購單</title>
+
+<style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f2f2f2;
+  margin: 0;
+  padding: 12px;
+}
+h1 {
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.product {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.product-info {
+  flex: 1;
+}
+.product-name {
+  font-weight: bold;
+  font-size: 16px;
+}
+.product-price {
+  font-size: 14px;
+  color: #555;
+}
+.qty-control {
+  display: flex;
+  align-items: center;
+}
+.qty-control button {
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  border: none;
+  background: #ddd;
+  border-radius: 6px;
+}
+.qty-control span {
+  width: 30px;
+  text-align: center;
+  font-size: 16px;
+}
+input[type=text], input[type=tel] {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+.pay-option {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+.total {
+  font-size: 18px;
+  text-align: center;
+  font-weight: bold;
+}
+.price-detail {
+  text-align: center;
+  margin-top: 6px;
+  font-size: 15px;
+}
+button.main {
+  width: 100%;
+  padding: 14px;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  background: #27ae60;
+  color: #fff;
+}
+button.copy {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background: #3498db;
+  color: #fff;
+  margin-top: 10px;
+}
+textarea {
+  width: 100%;
+  height: 220px;
+  margin-top: 10px;
+  font-size: 14px;
+}
+#discountText {
+  color: green;
+  text-align: center;
+  margin-top: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>佳德屋 天然養生堅果<br>線上訂購單</h1>
+
+<div id="products"></div>
+
+<div class="card">
+  <h3>收件資料</h3>
+  姓名
+  <input id="custName" type="text">
+  電話
+  <input id="custPhone" type="tel">
+  地址
+  <input id="custAddress" type="text">
+</div>
+
+<div class="card">
+  <h3>付款方式</h3>
+  <div class="pay-option"><input type="radio" name="pay" value="銀行轉帳"> 銀行轉帳</div>
+  <div class="pay-option"><input type="radio" name="pay" value="LINE Pay Money"> LINE Pay Money</div>
+  <div class="pay-option"><input type="radio" name="pay" value="貨到付款"> 貨到付款</div>
+</div>
+
+<div class="card">
+  <div class="total">
+    總包數：<span id="totalQty">0</span> 包
+  </div>
+  <div class="price-detail">
+    原始金額：NT$ <span id="originPrice">0</span><br>
+    折扣金額：- NT$ <span id="discountPrice">0</span><br>
+    <strong>折後金額：NT$ <span id="finalPrice">0</span></strong>
+  </div>
+
+  <div id="discountText"></div>
+
+  <button class="main" onclick="generateOrder()">產生訂購內容</button>
+  <button class="copy" onclick="copyOrder()">📋 一鍵複製訂購內容</button>
+
+  <textarea id="orderText" placeholder="產生後可直接複製貼到 LINE"></textarea>
+</div>
+
+<script>
+var products = [
+  { name:"綜合堅果（5合1）", weight:"360g", price:250, qty:0 },
+  { name:"綜合堅果（4合1）", weight:"400g", price:250, qty:0 },
+  { name:"腰果", weight:"260g", price:200, qty:0 },
+  { name:"核桃", weight:"260g", price:200, qty:0 },
+  { name:"杏仁果", weight:"300g", price:200, qty:0 },
+  { name:"杏仁條", weight:"300g", price:200, qty:0 },
+  { name:"夏威夷果", weight:"170g", price:200, qty:0 },
+  { name:"胡桃", weight:"200g", price:200, qty:0 },
+  { name:"南瓜子", weight:"400g", price:200, qty:0 },
+  { name:"松子", weight:"170g", price:300, qty:0 },
+  { name:"蔓越莓", weight:"375g", price:200, qty:0 },
+  { name:"野生小藍莓", weight:"150g", price:200, qty:0 },
+  { name:"綜合果乾", weight:"500g", price:200, qty:0 },
+  { name:"無籽葡萄乾", weight:"600g", price:200, qty:0 },
+  { name:"白葡萄乾", weight:"500g", price:200, qty:0 },
+  { name:"椰棗", weight:"380g", price:200, qty:0 },
+  { name:"台灣小番茄乾", weight:"500g", price:200, qty:0 },
+  { name:"青提子乾（綠葡萄乾）", weight:"600g", price:200, qty:0 },
+  { name:"無花果乾", weight:"400g", price:200, qty:0 }
+];
+
+var container = document.getElementById("products");
+
+function renderProducts() {
+  container.innerHTML = "";
+  for (var i = 0; i < products.length; i++) {
+    container.innerHTML +=
+      '<div class="card">' +
+        '<div class="product">' +
+          '<div class="product-info">' +
+            '<div class="product-name">' + products[i].name + '</div>' +
+            '<div class="product-price">' + products[i].weight + '｜$' + products[i].price + '</div>' +
+          '</div>' +
+          '<div class="qty-control">' +
+            '<button onclick="changeQty(' + i + ', -1)">−</button>' +
+            '<span>' + products[i].qty + '</span>' +
+            '<button onclick="changeQty(' + i + ', 1)">＋</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+  updateSummary();
+}
+
+function changeQty(index, diff) {
+  products[index].qty = Math.max(0, products[index].qty + diff);
+  renderProducts();
+}
+
+function updateSummary() {
+  var totalQty = 0;
+  var originPrice = 0;
+
+  for (var i = 0; i < products.length; i++) {
+    totalQty += products[i].qty;
+    originPrice += products[i].qty * products[i].price;
+  }
+
+  var discountPerPack = 0;
+  var discountText = "";
+
+  if (totalQty >= 100) {
+    discountPerPack = 15;
+    discountText = "🎉 100 包以上優惠：每包折 15 元";
+  } else if (totalQty >= 50) {
+    discountPerPack = 10;
+    discountText = "🎉 50–99 包優惠：每包折 10 元";
+  }
+
+  var discountPrice = totalQty * discountPerPack;
+  var finalPrice = originPrice - discountPrice;
+
+  totalQtyEl.innerText = totalQty;
+  originPriceEl.innerText = originPrice;
+  discountPriceEl.innerText = discountPrice;
+  finalPriceEl.innerText = finalPrice;
+  discountTextEl.innerText = discountText;
+}
+
+function generateOrder() {
+  var text = "【佳德屋 天然養生堅果 訂購單】\n";
+  text += "姓名：" + custName.value + "\n";
+  text += "電話：" + custPhone.value + "\n";
+  text += "地址：" + custAddress.value + "\n\n";
+  text += "訂購內容：\n";
+
+  for (var i = 0; i < products.length; i++) {
+    if (products[i].qty > 0) {
+      text += "- " + products[i].name + " " + products[i].weight + " × " + products[i].qty + " 包\n";
+    }
+  }
+
+  text += "\n總包數：" + totalQtyEl.innerText + " 包\n";
+  text += "原始金額：NT$ " + originPriceEl.innerText + "\n";
+  if (discountPriceEl.innerText > 0) {
+    text += "折扣金額：- NT$ " + discountPriceEl.innerText + "\n";
+  }
+  text += "實付金額：NT$ " + finalPriceEl.innerText + "\n";
+
+  var pay = document.querySelector('input[name="pay"]:checked');
+  if (pay) {
+    text += "付款方式：" + pay.value + "\n";
+  }
+
+  orderText.value = text;
+}
+
+function copyOrder() {
+  orderText.select();
+  document.execCommand("copy");
+  alert("訂購內容已複製，可以直接貼到 LINE 👍");
+}
+
+var totalQtyEl = document.getElementById("totalQty");
+var originPriceEl = document.getElementById("originPrice");
+var discountPriceEl = document.getElementById("discountPrice");
+var finalPriceEl = document.getElementById("finalPrice");
+var discountTextEl = document.getElementById("discountText");
+
+renderProducts();
+</script>
+
+</body>
+</html>
